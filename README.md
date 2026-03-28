@@ -1,18 +1,18 @@
-# ChatGPT HTML to JSON Converter 
+# ChatGPT HTML to JSON Extractor 🔁
 
-Als je een ChatGPT-gesprek downloadt via "Save Page As...", krijg je een gigantisch HTML-bestand vol met onleesbare code en geneste divs. 
+Een handige, snelle web-tool die je gigantische (en rommelige) ChatGPT HTML-exports omzet in schone, gestructureerde JSON. Perfect om je complete chatgeschiedenis direct te voeden aan andere AI-modellen (zoals Claude, Gemini, of andere AI) zonder de context te verliezen.
 
-Deze tool filtert alle ruis weg en zet je chat om in een schone, gestructureerde JSON die direct gebruikt kan worden door andere AI-modellen (zoals Claude, Gemini, Llama) als context of voor fine-tuning.
+## ✨ Features
+- **100% Lokaal & Privé:** Alles draait puur in je browser via JavaScript. Je persoonlijke chats worden naar geen enkele server geüpload.
+- **Schone Structuur:** Herkent automatisch de `user` en de `assistant` en behoudt alinea's, terwijl alle onnodige HTML-ruis wordt verwijderd.
+- **Multimodal Ready:** Ondersteunt het uitlezen van screenshots en afbeeldingen (via Base64) als je de chat opslaat met SingleFile.
+- **No Install:** Geen Python of ingewikkelde terminals nodig. Werkt in elke moderne browser.
 
-## Wat het doet
-- Leest lokaal opgeslagen `.htm` of `.html` bestanden.
-- Herkent automatisch of een bericht van de `user` of `assistant` is.
-- Verwijdert alle HTML-opmaak en behoudt alinea's.
-- Exporteert een schone `[bestandsnaam].json` in dezelfde map.
+## 🚀 Hoe gebruik je het?
 
-## Vereisten
-Dit script gebruikt `BeautifulSoup` om de HTML te parsen. Je hebt alleen Python nodig en één library:
-`pip install beautifulsoup4`
+Je kunt de tool direct runnen door het `index.html` bestand in je browser te openen. Om je data erin te laden, heb je twee opties:
 
-## Hoe te gebruiken
-Start het script, klik op de knop, selecteer je HTML-bestand en de JSON wordt direct voor je gegenereerd!
+1. Open de ChatGPT-chat die je wilt bewaren.
+2. Klik met je rechtermuisknop en kies **"Opslaan als..."** -> **"Webpagina, compleet"**.
+3. Upload het `.htm` of `.html` bestand in de tool.
+4. Je krijgt direct een schone JSON met de hele gespreksgeschiedenis.
