@@ -4,133 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChatGPT naar JSON Converter</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #202123;
-            color: #ececf1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background-color: #343541;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            text-align: center;
-            max-width: 500px;
-        }
-        h1 { margin-top: 0; color: #fff; }
-        p { color: #c5c5d2; line-height: 1.5; }
-        .upload-btn-wrapper {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-            margin-top: 20px;
-        }
-        .btn {
-            border: none;
-            color: white;
-            background-color: #10a37f;
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .btn:hover { background-color: #0b8c6d; }
-        .upload-btn-wrapper input[type=file] {
-            font-size: 100px;
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
-        #status { margin-top: 20px; font-weight: bold; color: #10a37f; }
-    </style>
+    <!-- Import Geist Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
-    <h1>ChatGPT JSON Extractor</h1>
-    <p>Selecteer je opgeslagen ChatGPT HTML-bestand. Alles gebeurt lokaal in je browser, dus je chat blijft 100% privé.</p>
-    
-    <div class="upload-btn-wrapper">
-        <button class="btn">Selecteer HTML Bestand</button>
-        <input type="file" id="fileInput" accept=".htm,.html" />
+    <div class="card">
+        <h1>ChatGPT Extractor</h1>
+        <p>Selecteer je opgeslagen ChatGPT HTML-bestand. Alles gebeurt gewoon in je browser, dus je chat blijft 100% privé.</p>
+        <p>Open je chat, rightclick en klik op "save as" om het bestand op te slaan. Upload hier het .HTM bestand</p>
+        <div class="drop-zone" id="dropZone">
+            <svg class="drop-zone-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+            </svg>
+            <div class="drop-zone-title">Klik of sleep je HTML bestand hierheen</div>
+            <div class="drop-zone-desc">Ondersteunt .html of .htm</div>
+            <input type="file" id="fileInput" accept=".htm,.html" />
+        </div>
+        
+        <div id="status" class="status-container"></div>
     </div>
     
-    <div id="status"></div>
+    <div class="footer">
+        Alle verwerking gebeurt lokaal op je apparaat.
+    </div>
 </div>
 
-<script>
-    document.getElementById('fileInput').addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const statusDiv = document.getElementById('status');
-        statusDiv.innerText = "Bestand aan het verwerken...";
-        statusDiv.style.color = "#c5c5d2";
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const htmlContent = e.target.result;
-            
-            // Maak een virtueel DOM-element aan om de HTML te lezen
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(htmlContent, 'text/html');
-            
-            const messages = [];
-            const messageNodes = doc.querySelectorAll('div[data-message-author-role]');
-            
-            messageNodes.forEach(node => {
-                const role = node.getAttribute('data-message-author-role');
-                let contentDiv;
-                
-                if (role === 'user') {
-                    contentDiv = node.querySelector('div.whitespace-pre-wrap');
-                } else {
-                    contentDiv = node.querySelector('div.markdown');
-                }
-                
-                if (contentDiv) {
-                    messages.push({
-                        role: role,
-                        content: contentDiv.innerText.trim()
-                    });
-                }
-            });
-
-            if (messages.length > 0) {
-                // Maak de JSON en start de download
-                const jsonString = JSON.stringify(messages, null, 4);
-                const blob = new Blob([jsonString], {type: "application/json"});
-                const url = URL.createObjectURL(blob);
-                
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = file.name.replace(/\.[^/.]+$/, "") + "_schoon.json";
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                statusDiv.innerText = `Klaar! ${messages.length} berichten omgezet en gedownload.`;
-                statusDiv.style.color = "#10a37f";
-            } else {
-                statusDiv.innerText = "Oeps! Geen berichten gevonden in dit bestand.";
-                statusDiv.style.color = "#ef4444";
-            }
-        };
-        reader.readAsText(file);
-    });
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
