@@ -1,4 +1,4 @@
-# ChatGPT HTML to JSON Converter 🚀
+# ChatGPT HTML to JSON Converter 
 
 Als je een ChatGPT-gesprek downloadt via "Save Page As...", krijg je een gigantisch HTML-bestand vol met onleesbare code en geneste divs. 
 
