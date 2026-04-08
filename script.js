@@ -32,11 +32,91 @@ fileInput.addEventListener('change', function(event) {
 dropZone.addEventListener('drop', function(event) {
     const file = event.dataTransfer.files[0];
     if (file) {
-        fileInput.files = event.dataTransfer.files; // Update input
+        fileInput.files = event.dataTransfer.files;
         handleFile(file);
     }
 });
 
+// ─── Detecteer automatisch het platform ──────────────────────────────────────
+function detectPlatform(doc) {
+    // Claude heeft data-testid="user-message" en data-is-streaming attributen
+    if (doc.querySelector('[data-testid="user-message"]')) return 'claude';
+    // ChatGPT heeft data-message-author-role attributen
+    if (doc.querySelector('[data-message-author-role]')) return 'chatgpt';
+    return null;
+}
+
+// ─── ChatGPT parser ───────────────────────────────────────────────────────────
+function parseChatGPT(doc) {
+    const messages = [];
+    const messageNodes = doc.querySelectorAll('div[data-message-author-role]');
+
+    messageNodes.forEach(node => {
+        const role = node.getAttribute('data-message-author-role');
+        let contentDiv;
+
+        if (role === 'user') {
+            contentDiv = node.querySelector('div.whitespace-pre-wrap');
+        } else {
+            contentDiv = node.querySelector('div.markdown');
+        }
+
+        if (contentDiv) {
+            const tekst = contentDiv.innerText.trim();
+            if (tekst) {
+                messages.push({ role, content: tekst });
+            }
+        }
+    });
+
+    return messages;
+}
+
+// ─── Claude parser ────────────────────────────────────────────────────────────
+function parseClaude(doc) {
+    const messages = [];
+
+    // Zoek de hoofdcontainer: ga 7 niveaus omhoog vanuit het eerste user-message
+    const firstUserMsg = doc.querySelector('[data-testid="user-message"]');
+    if (!firstUserMsg) return messages;
+
+    let container = firstUserMsg;
+    for (let i = 0; i < 7; i++) {
+        if (!container.parentElement) break;
+        container = container.parentElement;
+    }
+
+    // Loop door alle directe kinderen van de container
+    for (const child of container.children) {
+        // Gebruikersbericht
+        const userEl = child.querySelector('[data-testid="user-message"]');
+        if (userEl) {
+            const tekst = userEl.innerText.trim();
+            if (tekst) {
+                messages.push({ role: 'user', content: cleanText(tekst) });
+            }
+            continue;
+        }
+
+        // Assistantbericht (herkend via data-is-streaming attribuut)
+        const asstEl = child.querySelector('[data-is-streaming]');
+        if (asstEl) {
+            const tekst = asstEl.innerText.trim();
+            if (tekst) {
+                messages.push({ role: 'assistant', content: cleanText(tekst) });
+            }
+        }
+    }
+
+    return messages;
+}
+
+// Verwijder overbodige lege regels
+function cleanText(text) {
+    return text.replace(/\n{3,}/g, '\n\n').trim();
+}
+
+// ─── Hoofd verwerking ─────────────────────────────────────────────────────────
 function handleFile(file) {
     if (!file) return;
 
@@ -46,38 +126,25 @@ function handleFile(file) {
     const reader = new FileReader();
     reader.onload = function(e) {
         const htmlContent = e.target.result;
-        
-        // Maak een virtueel DOM-element aan om de HTML te lezen
+
         const parser = new DOMParser();
         const doc = parser.parseFromString(htmlContent, 'text/html');
-        
-        const messages = [];
-        const messageNodes = doc.querySelectorAll('div[data-message-author-role]');
-        
-        messageNodes.forEach(node => {
-            const role = node.getAttribute('data-message-author-role');
-            let contentDiv;
-            
-            if (role === 'user') {
-                contentDiv = node.querySelector('div.whitespace-pre-wrap');
-            } else {
-                contentDiv = node.querySelector('div.markdown');
-            }
-            
-            if (contentDiv) {
-                messages.push({
-                    role: role,
-                    content: contentDiv.innerText.trim()
-                });
-            }
-        });
+
+        const platform = detectPlatform(doc);
+
+        if (!platform) {
+            statusDiv.innerText = "Oeps! Dit lijkt geen ChatGPT of Claude HTML-bestand te zijn.";
+            statusDiv.className = "status-container visible status-error";
+            return;
+        }
+
+        const messages = platform === 'claude' ? parseClaude(doc) : parseChatGPT(doc);
 
         if (messages.length > 0) {
-            // Maak de JSON en start de download
             const jsonString = JSON.stringify(messages, null, 4);
-            const blob = new Blob([jsonString], {type: "application/json"});
+            const blob = new Blob([jsonString], { type: "application/json" });
             const url = URL.createObjectURL(blob);
-            
+
             const a = document.createElement('a');
             a.href = url;
             a.download = file.name.replace(/\.[^/.]+$/, "") + "_schoon.json";
@@ -85,8 +152,13 @@ function handleFile(file) {
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
-            
-            statusDiv.innerText = `Klaar! ${messages.length} berichten omgezet en gedownload.`;
+
+            const platformLabel = platform === 'claude' ? 'Claude' : 'ChatGPT';
+            const userCount = messages.filter(m => m.role === 'user').length;
+            const asstCount = messages.filter(m => m.role === 'assistant').length;
+
+            statusDiv.innerHTML = `Klaar! <strong>${messages.length}</strong> berichten omgezet uit <strong>${platformLabel}</strong>.<br>
+                <span class="status-detail">User: ${userCount} &nbsp;|&nbsp; Assistant: ${asstCount}</span>`;
             statusDiv.className = "status-container visible status-success";
         } else {
             statusDiv.innerText = "Oeps! Geen berichten gevonden in dit bestand.";

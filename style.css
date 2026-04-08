@@ -52,10 +52,30 @@ h1 {
 }
 
 p { 
-    margin: 0 0 32px 0;
+    margin: 0 0 16px 0;
     color: var(--accents-5); 
     line-height: 1.6; 
     font-size: 14px; 
+}
+
+/* Platform badges */
+.badge-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--accents-2);
+    color: var(--accents-5);
+    background: var(--accents-1);
+    letter-spacing: 0.01em;
 }
 
 .drop-zone {
@@ -116,12 +136,19 @@ p {
     min-height: 24px;
     font-size: 14px;
     font-weight: 500;
+    line-height: 1.6;
     transition: color 0.2s ease;
     opacity: 0;
 }
 
 .status-container.visible {
     opacity: 1;
+}
+
+.status-detail {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--accents-5);
 }
 
 .status-loading { color: var(--accents-5); }

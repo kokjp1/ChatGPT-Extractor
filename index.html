@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatGPT naar JSON Converter</title>
-    <!-- Import Geist Font -->
+    <title>Chat naar JSON Converter</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">    
@@ -14,15 +13,21 @@
 
 <div class="container">
     <div class="card">
-        <h1>ChatGPT Extractor</h1>
-        <p>Selecteer je opgeslagen ChatGPT HTML-bestand. Alles gebeurt gewoon in je browser, dus je chat blijft 100% privé.</p>
-        <p>Open je chat, rightclick en klik op "save as" om het bestand op te slaan. Upload hier het .HTM bestand</p>
+        <h1>Chat Extractor</h1>
+        <p>Selecteer je opgeslagen HTML-bestand van ChatGPT of Claude. Het platform wordt automatisch herkend. Alles gebeurt gewoon in je browser, dus je chat blijft 100% privé.</p>
+        <p>Open je chat, rechtsklik en kies <strong>"Opslaan als..."</strong> om het bestand op te slaan. Upload hier het <strong>.htm</strong> bestand.</p>
+
+        <div class="badge-row">
+            <span class="badge">ChatGPT</span>
+            <span class="badge">Claude</span>
+        </div>
+
         <div class="drop-zone" id="dropZone">
             <svg class="drop-zone-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
             </svg>
             <div class="drop-zone-title">Klik of sleep je HTML bestand hierheen</div>
-            <div class="drop-zone-desc">Ondersteunt .html of .htm</div>
+            <div class="drop-zone-desc">Ondersteunt .html of .htm van ChatGPT en Claude</div>
             <input type="file" id="fileInput" accept=".htm,.html" />
         </div>
         
