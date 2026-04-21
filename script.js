@@ -75,38 +75,28 @@ function parseChatGPT(doc) {
 // ─── Claude parser ────────────────────────────────────────────────────────────
 function parseClaude(doc) {
     const messages = [];
+    const allElements = [];
 
-    // Zoek de hoofdcontainer: ga 7 niveaus omhoog vanuit het eerste user-message
-    const firstUserMsg = doc.querySelector('[data-testid="user-message"]');
-    if (!firstUserMsg) return messages;
+    doc.querySelectorAll('[data-testid="user-message"]').forEach(el => {
+        allElements.push({ el, role: 'user' });
+    });
 
-    let container = firstUserMsg;
-    for (let i = 0; i < 7; i++) {
-        if (!container.parentElement) break;
-        container = container.parentElement;
-    }
+    doc.querySelectorAll('[data-is-streaming]').forEach(el => {
+        allElements.push({ el, role: 'assistant' });
+    });
 
-    // Loop door alle directe kinderen van de container
-    for (const child of container.children) {
-        // Gebruikersbericht
-        const userEl = child.querySelector('[data-testid="user-message"]');
-        if (userEl) {
-            const tekst = userEl.innerText.trim();
-            if (tekst) {
-                messages.push({ role: 'user', content: cleanText(tekst) });
-            }
-            continue;
+    // Sorteer op volgorde in de DOM
+    allElements.sort((a, b) => {
+        const pos = a.el.compareDocumentPosition(b.el);
+        return pos & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+    });
+
+    allElements.forEach(({ el, role }) => {
+        const tekst = el.innerText.trim();
+        if (tekst) {
+            messages.push({ role, content: cleanText(tekst) });
         }
-
-        // Assistantbericht (herkend via data-is-streaming attribuut)
-        const asstEl = child.querySelector('[data-is-streaming]');
-        if (asstEl) {
-            const tekst = asstEl.innerText.trim();
-            if (tekst) {
-                messages.push({ role: 'assistant', content: cleanText(tekst) });
-            }
-        }
-    }
+    });
 
     return messages;
 }
