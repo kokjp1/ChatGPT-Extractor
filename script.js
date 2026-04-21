@@ -62,7 +62,7 @@ function parseChatGPT(doc) {
         }
 
         if (contentDiv) {
-            const tekst = contentDiv.innerText.trim();
+            const tekst = contentDiv.textContent.trim();
             if (tekst) {
                 messages.push({ role, content: tekst });
             }
@@ -78,11 +78,13 @@ function parseClaude(doc) {
     const allElements = [];
 
     doc.querySelectorAll('[data-testid="user-message"]').forEach(el => {
-        allElements.push({ el, role: 'user' });
+        allElements.push({ el, role: 'user', getText: () => el.textContent });
     });
 
     doc.querySelectorAll('[data-is-streaming]').forEach(el => {
-        allElements.push({ el, role: 'assistant' });
+        // Gebruik de inner response-div voor schonere tekst (zonder sr-only label en knoppen)
+        const inner = el.querySelector('.font-claude-response') || el;
+        allElements.push({ el, role: 'assistant', getText: () => inner.textContent });
     });
 
     // Sorteer op volgorde in de DOM
@@ -91,8 +93,8 @@ function parseClaude(doc) {
         return pos & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
     });
 
-    allElements.forEach(({ el, role }) => {
-        const tekst = el.innerText.trim();
+    allElements.forEach(({ role, getText }) => {
+        const tekst = getText().trim();
         if (tekst) {
             messages.push({ role, content: cleanText(tekst) });
         }
